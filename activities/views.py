@@ -58,8 +58,11 @@ class ActivitiesView(APIView):
 
         if data["grade"]:
             data.pop("grade")
-
-        user = User.objects.get(id=request.user.id)
+        
+        try:
+            user = User.objects.get(id=request.user.id)
+        except User.DoesNotExist:
+            user = None
 
         try:
             activity = Activity.objects.create(**data, user_id=user)
