@@ -13,6 +13,11 @@ class CourseView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [CreateCoursePermission]
 
+    def get(self, request):
+        courses = Course.objects.all()
+        serializer = CourseSerializer(courses, many=True)
+        return Response(serializer.data)
+
     def post(self, request):
         serializer = CourseSerializer(data=request.data)
 
@@ -36,7 +41,7 @@ class UpdateCourseView(APIView):
 
         found_course = get_object_or_404(Course, id=course_id)
         found_users = User.objects.filter(pk__in=user_ids)
-
+        found_course.user_set.clear()
         for user in found_users:
             found_course.user_set.add(user)
 
