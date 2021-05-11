@@ -30,9 +30,12 @@ class ActivitiesView(APIView):
 
         found_activity = get_object_or_404(Activity, id=activity_id)
 
-        found_activity.update(grade=grade)
+        Activity.objects.filter(id=activity_id).update(grade=grade)
 
-        serializer = ActivitySerializer(found_activity)
+        updated_activity = Activity.objects.get(id=activity_id)
+
+        serializer = ActivitySerializer(updated_activity)
+
         return Response(serializer.data)
 
     def post(self, request):
