@@ -570,7 +570,6 @@ class TestActivityView(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
 
         all_activities = self.client.get("/api/activities/")
-
         self.assertEqual(len(all_activities.json()), 4)
         self.assertEqual(all_activities.status_code, 200)
 

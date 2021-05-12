@@ -5,6 +5,7 @@ from rest_framework import status
 from authentication.serializers import CredentialSerializer, UserSerializer
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+from django.db import transaction
 
 
 class UserView(APIView):
@@ -15,15 +16,15 @@ class UserView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            user = User.objects.create_user(
-                username=request.data["username"],
-                password=request.data["password"],
-                is_superuser=request.data["is_superuser"],
-                is_staff=request.data["is_staff"],
-            )
-
-            serializer = UserSerializer(user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    username=request.data["username"],
+                    password=request.data["password"],
+                    is_superuser=request.data["is_superuser"],
+                    is_staff=request.data["is_staff"],
+                )
+                serializer = UserSerializer(user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
         except:
             return Response(
                 {"error": "User already exists"}, status=status.HTTP_409_CONFLICT
