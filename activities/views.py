@@ -7,8 +7,8 @@ from rest_framework.authentication import TokenAuthentication
 from activities.permissions import CreateActivityPermission
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+import ipdb
 
 
 class ActivitiesView(APIView):
@@ -16,25 +16,27 @@ class ActivitiesView(APIView):
     permission_classes = [CreateActivityPermission]
 
     def get(self, request, user_id=""):
-        if request.user.is_staff or request.user.is_superuser:
+        if not request.user.is_superuser and not request.user.is_staff and user_id:
+            return Response(
+                {"error": "You dont have permission"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        if request.user.is_superuser or request.user.is_staff:
             if user_id:
-                try:
-                    with transaction.atomic():
-                        user = Activity.objects.filter(user_id=user_id)
-                        serializer = ActivitySerializer(user, many=True)
-                        return Response(serializer.data)
-                except ObjectDoesNotExist:
-                    return Response(
-                        {"msg": "user not found"}, status=status.HTTP_404_NOT_FOUND
-                    )
+                found_user = get_object_or_404(User, id=user_id)
+                activities = Activity.objects.filter(user_id=found_user)
+                serializer = ActivitySerializer(activities, many=True)
+                return Response(serializer.data)
             else:
                 data = Activity.objects.all()
                 serializer = ActivitySerializer(data, many=True)
-        else:
+                return Response(serializer.data)
+
+        if not request.user.is_superuser and not request.user.is_staff:
             data = Activity.objects.filter(user_id=request.user.id)
             serializer = ActivitySerializer(data, many=True)
-
-        return Response(serializer.data)
+            return Response(serializer.data)
 
     def put(self, request):
         activity_id = request.data["id"]
