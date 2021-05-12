@@ -371,10 +371,10 @@ class TestActivityView(TestCase):
         }
 
         self.activity_data = {"repo": "test repo"}
-        self.activity_data_1 = {"repo": "test repo"}
-        self.activity_data_2 = {"repo": "test repo 2"}
-        self.activity_data_3 = {"repo": "test repo"}
-        self.activity_data_4 = {"repo": "test repo 2"}
+        self.activity_data_1 = {"repo": "test repo 2"}
+        self.activity_data_2 = {"repo": "test repo 3"}
+        self.activity_data_3 = {"repo": "test repo 4"}
+        self.activity_data_4 = {"repo": "test repo 5"}
 
     def test_create_activities_student(self):
         # test with no authentication
@@ -483,11 +483,11 @@ class TestActivityView(TestCase):
         ).json()
 
         self.assertEqual(
-            activity_1, {"id": 1, "repo": "test repo", "user_id": 1, "grade": None}
+            activity_1, {"id": 1, "repo": "test repo 2", "user_id": 1, "grade": None}
         )
 
         self.assertEqual(
-            activity_2, {"id": 2, "repo": "test repo 2", "user_id": 1, "grade": None}
+            activity_2, {"id": 2, "repo": "test repo 3", "user_id": 1, "grade": None}
         )
 
         activity_list = self.client.get("/api/activities/").json()
@@ -495,8 +495,8 @@ class TestActivityView(TestCase):
         self.assertEqual(
             activity_list,
             [
-                {"id": 1, "repo": "test repo", "user_id": 1, "grade": None},
-                {"id": 2, "repo": "test repo 2", "user_id": 1, "grade": None},
+                {"id": 1, "repo": "test repo 2", "user_id": 1, "grade": None},
+                {"id": 2, "repo": "test repo 3", "user_id": 1, "grade": None},
             ],
         )
 
